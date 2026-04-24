@@ -222,7 +222,106 @@ input[type=range]{width:100%;accent-color:var(--teal);cursor:pointer;margin:4px 
 </style>
 </head>
 <body>
+<nav class="mac-topnav" role="navigation" aria-label="Main navigation">
+  <a href="https://raaziaali.github.io/" class="mac-home-btn" aria-label="Back to Mrs. Ali's Classroom home">
+    <svg class="mac-home-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M19 12H5M12 19l-7-7 7-7"/>
+    </svg>
+    <span class="mac-home-text">Mrs. Ali's Classroom</span>
+  </a>
+</nav>
 
+<style>
+  .mac-topnav {
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 99999;
+    padding: 10px 16px;
+    background: rgba(10, 10, 31, 0.94);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(196, 181, 253, 0.2);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "DM Sans", sans-serif;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
+    margin: 0;
+  }
+  .mac-home-btn {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 8px;
+    color: #F8F9FF !important;
+    text-decoration: none !important;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 8px;
+    transition: background 0.2s, transform 0.2s, color 0.2s;
+    -webkit-tap-highlight-color: transparent;
+    border: none;
+    background: transparent;
+  }
+  .mac-home-btn:hover,
+  .mac-home-btn:focus {
+    background: rgba(0, 229, 255, 0.12) !important;
+    color: #00E5FF !important;
+    outline: none;
+  }
+  .mac-home-btn:active {
+    transform: translateX(-2px);
+  }
+  .mac-home-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+  .mac-home-text { white-space: nowrap; }
+  @media (max-width: 500px) {
+    .mac-topnav { padding: 8px 12px; }
+    .mac-home-text { font-size: 13px; }
+  }
+  .mac-topnav, .mac-topnav * { box-sizing: border-box; }
+  [data-mac-legacy-hidden="true"] { display: none !important; }
+</style>
+
+<script>
+  (function() {
+    function hideLegacyBackLinks() {
+      var patterns = [
+        /^\s*(\u2190|<-|\u2039|\u00ab|\u2039\u2039|\u2190+|<+)\s*back/i,
+        /^\s*back\s+to\b/i,
+        /^\s*back\s*(home|$)/i,
+        /^\s*home\s*$/i,
+        /portal\s*$/i,
+        /back\s+to\s+portal/i,
+        /back\s+to\s+home/i,
+        /return\s+to/i,
+        /all\s+tools/i
+      ];
+      var links = document.querySelectorAll('a, button');
+      for (var i = 0; i < links.length; i++) {
+        var el = links[i];
+        if (el.classList.contains('mac-home-btn')) continue;
+        if (el.closest && el.closest('.mac-topnav')) continue;
+        var text = (el.textContent || '').trim();
+        if (!text) continue;
+        for (var j = 0; j < patterns.length; j++) {
+          if (patterns[j].test(text)) {
+            el.setAttribute('data-mac-legacy-hidden', 'true');
+            break;
+          }
+        }
+      }
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', hideLegacyBackLinks);
+    } else {
+      hideLegacyBackLinks();
+    }
+  })();
+</script>
 <!-- HEADER -->
 <div class="header">
   <div class="header-brand">
