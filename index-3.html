@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dynamic Classroom Layout Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0f4f8;--surface:#ffffff;--surface2:#f7fafc;
+  --navy:#1a2e4a;--navy2:#243d5e;
+  --teal:#00b894;--teal2:#00d4aa;
+  --amber:#f39c12;--coral:#e74c3c;--purple:#8e44ad;
+  --blue:#2980b9;--green:#27ae60;--pink:#e91e8c;
+  --text:#1a2e4a;--muted:#5a7a9a;--faint:#a0b4c8;
+  --border:#dde8f0;--shadow:0 4px 20px rgba(26,46,74,.1);
+  --r:12px;--r-lg:18px;
+}
+html{font-size:15px}
+body{font-family:'Nunito Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── Header ── */
+.header{
+  background:linear-gradient(135deg,var(--navy),var(--navy2));
+  padding:28px 40px 24px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;
+}
+.header-brand{display:flex;align-items:center;gap:14px}
+.brand-icon{
+  width:48px;height:48px;border-radius:14px;
+  background:linear-gradient(135deg,var(--teal),var(--teal2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;box-shadow:0 4px 14px rgba(0,184,148,.35);
+}
+.brand-name{font-family:'Nunito',sans-serif;font-size:20px;font-weight:900;color:#fff;line-height:1}
+.brand-sub{font-size:12px;color:rgba(255,255,255,.55);margin-top:2px}
+.header-btns{display:flex;gap:10px}
+.hbtn{
+  display:flex;align-items:center;gap:7px;
+  padding:9px 20px;border-radius:99px;
+  font-size:13px;font-weight:800;font-family:'Nunito',sans-serif;
+  cursor:pointer;border:none;transition:all .18s;text-decoration:none;
+}
+.hbtn-outline{background:rgba(255,255,255,.1);color:#fff;border:1.5px solid rgba(255,255,255,.2)}
+.hbtn-outline:hover{background:rgba(255,255,255,.18)}
+.hbtn-primary{background:linear-gradient(135deg,var(--teal),var(--teal2));color:#fff;box-shadow:0 4px 14px rgba(0,184,148,.35)}
+.hbtn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,184,148,.45)}
+
+/* ── Layout ── */
+.app{display:grid;grid-template-columns:360px 1fr;gap:0;min-height:calc(100vh - 100px)}
+
+/* ── Left panel ── */
+.panel{
+  background:var(--surface);border-right:1px solid var(--border);
+  padding:28px 24px;overflow-y:auto;max-height:calc(100vh - 100px);
+  display:flex;flex-direction:column;gap:20px;
+}
+.panel-section{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px 16px}
+.panel-section-title{
+  font-family:'Nunito',sans-serif;font-size:13px;font-weight:900;
+  color:var(--navy);text-transform:uppercase;letter-spacing:.07em;
+  margin-bottom:14px;display:flex;align-items:center;gap:8px;
+}
+.panel-section-title::before{content:'';width:3px;height:16px;border-radius:2px;background:var(--teal);flex-shrink:0}
+
+label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:5px;letter-spacing:.04em}
+input[type=text],input[type=number],textarea,select{
+  width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;
+  font-size:14px;font-family:'Nunito Sans',sans-serif;color:var(--text);
+  background:var(--surface);outline:none;transition:border-color .18s;
+}
+input:focus,textarea:focus,select:focus{border-color:var(--teal)}
+textarea{resize:vertical;min-height:80px;line-height:1.5}
+input[type=range]{width:100%;accent-color:var(--teal);cursor:pointer;margin:4px 0}
+
+.field{margin-bottom:14px}
+.field:last-child{margin-bottom:0}
+
+/* Table count row */
+.num-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.range-val{font-family:'Nunito',sans-serif;font-size:18px;font-weight:900;color:var(--teal);display:block;text-align:center;margin-top:2px}
+
+/* Dynamic table size rows */
+#table-sizes-list{display:flex;flex-direction:column;gap:8px;max-height:240px;overflow-y:auto}
+#table-sizes-list::-webkit-scrollbar{width:4px}
+#table-sizes-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.tsrow{
+  display:flex;align-items:center;gap:10px;
+  background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:8px 12px;
+}
+.tslabel{font-size:12px;font-weight:800;color:var(--navy);min-width:58px}
+.tsrow input[type=number]{height:32px;padding:0 8px;font-size:13px;flex:1}
+.tsrow .ts-icon{
+  width:28px;height:28px;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;
+}
+
+/* Layout options */
+.layout-options{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.layout-opt{
+  padding:10px 8px;border-radius:9px;border:2px solid var(--border);
+  cursor:pointer;text-align:center;transition:all .15s;
+  background:var(--surface);
+}
+.layout-opt:hover{border-color:var(--teal);background:rgba(0,184,148,.05)}
+.layout-opt.sel{border-color:var(--teal);background:rgba(0,184,148,.08)}
+.layout-opt .lo-icon{font-size:20px;margin-bottom:4px}
+.layout-opt .lo-name{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+
+/* Color swatches */
+.swatches{display:flex;gap:8px;flex-wrap:wrap}
+.sw{width:28px;height:28px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all .15s}
+.sw.sel{border-color:var(--text);transform:scale(1.15)}
+
+/* Generate button */
+.gen-btn{
+  width:100%;height:50px;border:none;border-radius:12px;
+  background:linear-gradient(135deg,var(--navy),var(--navy2));
+  color:#fff;font-size:15px;font-weight:900;font-family:'Nunito',sans-serif;
+  cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  box-shadow:0 4px 18px rgba(26,46,74,.25);
+}
+.gen-btn:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(26,46,74,.32)}
+.gen-btn:active{transform:scale(.98)}
+
+.shuffle-btn{
+  width:100%;height:42px;border:none;border-radius:10px;
+  background:rgba(0,184,148,.1);color:var(--teal);
+  font-size:13px;font-weight:800;font-family:'Nunito',sans-serif;
+  border:1.5px solid rgba(0,184,148,.25);cursor:pointer;transition:all .18s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.shuffle-btn:hover{background:rgba(0,184,148,.18)}
+
+/* Stats pills */
+.stat-pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.stat-pill{
+  display:flex;align-items:center;gap:5px;
+  padding:5px 12px;border-radius:99px;
+  font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;
+}
+.sp-teal{background:rgba(0,184,148,.12);color:var(--teal);border:1px solid rgba(0,184,148,.2)}
+.sp-amber{background:rgba(243,156,18,.12);color:var(--amber);border:1px solid rgba(243,156,18,.2)}
+.sp-navy{background:rgba(26,46,74,.08);color:var(--navy);border:1px solid rgba(26,46,74,.12)}
+
+/* Error / info */
+.msg{padding:10px 14px;border-radius:9px;font-size:13px;font-weight:600;margin-top:8px;display:none}
+.msg.show{display:block}
+.msg-err{background:rgba(231,76,60,.1);color:var(--coral);border:1px solid rgba(231,76,60,.2)}
+.msg-ok{background:rgba(39,174,96,.1);color:var(--green);border:1px solid rgba(39,174,96,.2)}
+.msg-warn{background:rgba(243,156,18,.1);color:var(--amber);border:1px solid rgba(243,156,18,.2)}
+
+/* ── Canvas area ── */
+.canvas-area{
+  background:var(--surface2);display:flex;flex-direction:column;
+  align-items:stretch;justify-content:flex-start;
+}
+.canvas-toolbar{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+}
+.ct-left{display:flex;align-items:center;gap:8px}
+.ct-title{font-family:'Nunito',sans-serif;font-size:15px;font-weight:900;color:var(--navy)}
+.ct-badge{
+  padding:3px 10px;border-radius:99px;font-size:11px;font-weight:800;
+  background:rgba(0,184,148,.12);color:var(--teal);border:1px solid rgba(0,184,148,.2);
+}
+.ct-right{display:flex;align-items:center;gap:8px}
+.ct-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:8px 16px;border-radius:9px;
+  font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;
+  cursor:pointer;border:1.5px solid var(--border);background:var(--surface);
+  color:var(--muted);transition:all .15s;
+}
+.ct-btn:hover{background:var(--surface2);color:var(--text)}
+.ct-btn.primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+.ct-btn.primary:hover{background:var(--navy2)}
+
+.canvas-wrap{
+  flex:1;padding:24px;display:flex;align-items:center;justify-content:center;
+  overflow:auto;
+}
+#classroom-canvas{
+  background:#fff;border-radius:var(--r-lg);
+  box-shadow:var(--shadow),0 0 0 1px var(--border);
+  max-width:100%;cursor:default;
+}
+
+/* Empty state */
+.empty-state{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:16px;text-align:center;padding:60px 40px;
+  color:var(--muted);
+}
+.empty-state .em-icon{font-size:64px;opacity:.4}
+.empty-state h3{font-family:'Nunito',sans-serif;font-size:20px;font-weight:900;color:var(--navy);opacity:.5}
+.empty-state p{font-size:14px;line-height:1.6;max-width:320px;opacity:.6}
+
+/* ── Table assignment list ── */
+#assignment-list{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:16px;margin:0 24px 24px;
+  display:none;
+}
+#assignment-list.show{display:block}
+.al-title{font-family:'Nunito',sans-serif;font-size:13px;font-weight:900;color:var(--navy);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px}
+.al-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+.al-card{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:10px 12px}
+.al-table-name{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.al-students{display:flex;flex-direction:column;gap:3px}
+.al-student{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px}
+.al-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
+@media(max-width:900px){
+  .app{grid-template-columns:1fr}
+  .panel{max-height:none;border-right:none;border-bottom:1px solid var(--border)}
+  .canvas-area{min-height:500px}
+}
+</style>
+</head>
+<body>
+<nav class="mac-topnav" role="navigation" aria-label="Main navigation">
+  <a href="https://raaziaali.github.io/" class="mac-home-btn" aria-label="Back to Mrs. Ali's Classroom home">
+    <svg class="mac-home-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M19 12H5M12 19l-7-7 7-7"/>
+    </svg>
+    <span class="mac-home-text">Mrs. Ali's Classroom</span>
+  </a>
+</nav>
+
+<style>
+  .mac-topnav {
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 99999;
+    padding: 10px 16px;
+    background: rgba(10, 10, 31, 0.94);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(196, 181, 253, 0.2);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "DM Sans", sans-serif;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
+    margin: 0;
+  }
+  .mac-home-btn {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 8px;
+    color: #F8F9FF !important;
+    text-decoration: none !important;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 8px;
+    transition: background 0.2s, transform 0.2s, color 0.2s;
+    -webkit-tap-highlight-color: transparent;
+    border: none;
+    background: transparent;
+  }
+  .mac-home-btn:hover,
+  .mac-home-btn:focus {
+    background: rgba(0, 229, 255, 0.12) !important;
+    color: #00E5FF !important;
+    outline: none;
+  }
+  .mac-home-btn:active {
+    transform: translateX(-2px);
+  }
+  .mac-home-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+  .mac-home-text { white-space: nowrap; }
+  @media (max-width: 500px) {
+    .mac-topnav { padding: 8px 12px; }
+    .mac-home-text { font-size: 13px; }
+  }
+  .mac-topnav, .mac-topnav * { box-sizing: border-box; }
+  [data-mac-legacy-hidden="true"] { display: none !important; }
+</style>
+
+<script>
+  (function() {
+    function hideLegacyBackLinks() {
+      // Only hide links that point to recognizable old portal URLs
+      // OR have text explicitly saying "back to portal/home/main".
+      // We NEVER touch <button> elements (those handle internal tool navigation).
+
+      var portalUrlPattern = /(math-interactives\/index\.html|\/Algebra-1\/?$|\/Algebra-1\/index\.html|\/Congruence-and-Similarity\/?$|\/Congruence-and-Similarity\/index\.html|\/Descriptive-Statistics\/?$|\/Descriptive-Statistics\/index\.html|\/Self-Regulation-Teacher-Tools\/?$|\/Self-Regulation-Teacher-Tools\/index\.html)/i;
+
+      var backTextPattern = /(back\s+to\s+(portal|home|main|classroom)|return\s+to|all\s+tools)/i;
+
+      var links = document.querySelectorAll('a');
+      for (var i = 0; i < links.length; i++) {
+        var el = links[i];
+        if (el.classList.contains('mac-home-btn')) continue;
+        if (el.closest && el.closest('.mac-topnav')) continue;
+
+        var href = el.getAttribute('href') || '';
+        var text = (el.textContent || '').trim();
+
+        if (portalUrlPattern.test(href) || backTextPattern.test(text)) {
+          el.setAttribute('data-mac-legacy-hidden', 'true');
+        }
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', hideLegacyBackLinks);
+    } else {
+      hideLegacyBackLinks();
+    }
+  })();
+</script>
+<!-- HEADER -->
+<div class="header">
+  <div class="header-brand">
+    <div class="brand-icon">🏫</div>
+    <div>
+      <div class="brand-name">Classroom Layout Generator</div>
+      <div class="brand-sub">Dynamic seating · Random shuffle · PNG export</div>
+    </div>
+  </div>
+  <div class="header-btns">
+    <a class="hbtn hbtn-outline" href="https://raaziaali.github.io/">← Back to portal</a>
+    <button class="hbtn hbtn-primary" onclick="downloadPNG()">⬇ Save as PNG</button>
+  </div>
+</div>
+
+<div class="app">
+
+  <!-- ════════════════ LEFT PANEL ════════════════ -->
+  <div class="panel">
+
+    <!-- Room setup -->
+    <div class="panel-section">
+      <div class="panel-section-title">Room Setup</div>
+
+      <div class="field">
+        <label>Number of tables: <span class="range-val" id="num-tables-val">6</span></label>
+        <input type="range" id="num-tables" min="1" max="20" value="6" oninput="updateTableCount()">
+      </div>
+
+      <div class="field">
+        <label>Layout style</label>
+        <div class="layout-options">
+          <div class="layout-opt sel" onclick="setLayout('rows',this)" title="Rows">
+            <div class="lo-icon">⬛⬛⬛<br>⬛⬛⬛</div>
+            <div class="lo-name">Rows</div>
+          </div>
+          <div class="layout-opt" onclick="setLayout('pods',this)" title="Pods">
+            <div class="lo-icon">⬛⬛<br>⬛⬛</div>
+            <div class="lo-name">Pods</div>
+          </div>
+          <div class="layout-opt" onclick="setLayout('horseshoe',this)" title="Horseshoe">
+            <div class="lo-icon">⬛⬛⬛<br>&nbsp;⬛&nbsp;</div>
+            <div class="lo-name">Horseshoe</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Table colour theme</label>
+        <div class="swatches" id="swatches">
+          <div class="sw sel" style="background:#3498db" data-color="#3498db" onclick="setColor(this)" title="Blue"></div>
+          <div class="sw" style="background:#2ecc71" data-color="#2ecc71" onclick="setColor(this)" title="Green"></div>
+          <div class="sw" style="background:#9b59b6" data-color="#9b59b6" onclick="setColor(this)" title="Purple"></div>
+          <div class="sw" style="background:#e67e22" data-color="#e67e22" onclick="setColor(this)" title="Orange"></div>
+          <div class="sw" style="background:#e91e8c" data-color="#e91e8c" onclick="setColor(this)" title="Pink"></div>
+          <div class="sw" style="background:#00b894" data-color="#00b894" onclick="setColor(this)" title="Teal"></div>
+          <div class="sw" style="background:#1a2e4a" data-color="#1a2e4a" onclick="setColor(this)" title="Navy"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table sizes -->
+    <div class="panel-section">
+      <div class="panel-section-title">Students per Table</div>
+      <div id="table-sizes-list"></div>
+      <div class="stat-pills" style="margin-top:12px">
+        <span class="stat-pill sp-navy">📊 <span id="total-students-needed">0</span> seats needed</span>
+      </div>
+    </div>
+
+    <!-- Student names -->
+    <div class="panel-section">
+      <div class="panel-section-title">Student Names</div>
+      <div class="field">
+        <label>Paste names — one per line or comma-separated</label>
+        <textarea id="student-names" placeholder="Aisha&#10;Mohammed&#10;Sara&#10;Omar&#10;Fatima&#10;Khalid" oninput="updateStats()"></textarea>
+      </div>
+      <div class="stat-pills">
+        <span class="stat-pill sp-teal">👤 <span id="student-count">0</span> students</span>
+        <span class="stat-pill sp-amber" id="diff-pill" style="display:none">⚠️ <span id="diff-text"></span></span>
+      </div>
+      <div class="msg msg-err" id="msg-err"></div>
+      <div class="msg msg-warn" id="msg-warn"></div>
+    </div>
+
+    <!-- Options -->
+    <div class="panel-section">
+      <div class="panel-section-title">Options</div>
+      <div class="field">
+        <label>Room label</label>
+        <input type="text" id="room-label" value="Room 201 — Grade 8 Mathematics" placeholder="e.g. Room 201">
+      </div>
+      <div class="field">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+          <input type="checkbox" id="show-numbers" checked style="width:auto;accent-color:var(--teal)">
+          Show table numbers
+        </label>
+      </div>
+      <div class="field">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+          <input type="checkbox" id="show-initials" style="width:auto;accent-color:var(--teal)">
+          Show initials only (privacy mode)
+        </label>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <button class="gen-btn" onclick="generate()">
+      🎲 Generate Seating Plan
+    </button>
+    <button class="shuffle-btn" id="shuffle-btn" onclick="shuffle()" style="display:none">
+      🔀 Shuffle Again
+    </button>
+
+  </div><!-- end panel -->
+
+  <!-- ════════════════ CANVAS AREA ════════════════ -->
+  <div class="canvas-area">
+    <div class="canvas-toolbar">
+      <div class="ct-left">
+        <span class="ct-title" id="ct-title">Classroom Preview</span>
+        <span class="ct-badge" id="ct-badge" style="display:none">Generated</span>
+      </div>
+      <div class="ct-right">
+        <button class="ct-btn" onclick="zoomOut()">− Zoom</button>
+        <button class="ct-btn" onclick="zoomIn()">+ Zoom</button>
+        <button class="ct-btn" onclick="downloadPNG()">⬇ PNG</button>
+        <button class="ct-btn primary" onclick="generate()">🎲 Regenerate</button>
+      </div>
+    </div>
+
+    <div class="canvas-wrap" id="canvas-wrap">
+      <div class="empty-state" id="empty-state">
+        <div class="em-icon">🏫</div>
+        <h3>No layout yet</h3>
+        <p>Set up your tables, paste your student names, then click <strong>Generate Seating Plan</strong> to see the magic.</p>
+      </div>
+      <canvas id="classroom-canvas" style="display:none"></canvas>
+    </div>
+
+    <!-- Assignment list -->
+    <div id="assignment-list">
+      <div class="al-title">📋 Table Assignments</div>
+      <div class="al-grid" id="al-grid"></div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────
+let numTables = 6;
+let tableSizes = [];
+let layoutStyle = 'rows';
+let tableColor = '#3498db';
+let currentTables = [];
+let zoomLevel = 1.0;
+let namesList = [];
+
+// Table colours for assignments
+const TABLE_COLORS = ['#3498db','#2ecc71','#9b59b6','#e67e22','#e91e8c','#00b894','#e74c3c','#f39c12','#1abc9c','#d35400'];
+
+// ── Init ───────────────────────────────────────────────────────
+updateTableCount();
+updateStats();
+
+function updateTableCount() {
+  numTables = parseInt(document.getElementById('num-tables').value);
+  document.getElementById('num-tables-val').textContent = numTables;
+
+  // Rebuild table size rows
+  const list = document.getElementById('table-sizes-list');
+  // Preserve existing values
+  const old = tableSizes.slice();
+  tableSizes = [];
+  list.innerHTML = '';
+  for (let i = 0; i < numTables; i++) {
+    const val = old[i] || 3;
+    tableSizes.push(val);
+    const row = document.createElement('div');
+    row.className = 'tsrow';
+    row.innerHTML = `
+      <div class="ts-icon" style="background:${TABLE_COLORS[i % TABLE_COLORS.length]}22;color:${TABLE_COLORS[i % TABLE_COLORS.length]}">T${i+1}</div>
+      <span class="tslabel">Table ${i+1}</span>
+      <input type="number" min="1" max="8" value="${val}" oninput="tableSizes[${i}]=parseInt(this.value)||1;updateStats()">
+      <span style="font-size:11px;color:var(--muted);font-weight:700">students</span>`;
+    list.appendChild(row);
+  }
+  updateStats();
+}
+
+function updateStats() {
+  const total = tableSizes.reduce((a, b) => a + (b || 0), 0);
+  document.getElementById('total-students-needed').textContent = total;
+
+  const raw = document.getElementById('student-names').value;
+  namesList = parseNames(raw);
+  document.getElementById('student-count').textContent = namesList.length;
+
+  const diff = namesList.length - total;
+  const diffPill = document.getElementById('diff-pill');
+  const diffText = document.getElementById('diff-text');
+  if (diff === 0 || namesList.length === 0) {
+    diffPill.style.display = 'none';
+  } else {
+    diffPill.style.display = '';
+    diffText.textContent = diff > 0 ? `${diff} extra student${diff > 1 ? 's' : ''}` : `${Math.abs(diff)} short`;
+  }
+}
+
+function parseNames(raw) {
+  // Support both comma-separated and newline-separated
+  return raw.split(/[\n,]/).map(n => n.trim()).filter(n => n.length > 0);
+}
+
+function setLayout(style, el) {
+  layoutStyle = style;
+  document.querySelectorAll('.layout-opt').forEach(e => e.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function setColor(el) {
+  tableColor = el.dataset.color;
+  document.querySelectorAll('.sw').forEach(e => e.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function zoomIn() { zoomLevel = Math.min(2.0, zoomLevel + 0.15); applyZoom(); }
+function zoomOut() { zoomLevel = Math.max(0.4, zoomLevel - 0.15); applyZoom(); }
+function applyZoom() {
+  const cv = document.getElementById('classroom-canvas');
+  cv.style.transform = `scale(${zoomLevel})`;
+  cv.style.transformOrigin = 'top center';
+}
+
+// ── Generate ───────────────────────────────────────────────────
+function generate() {
+  const total = tableSizes.reduce((a, b) => a + (b || 0), 0);
+  updateStats();
+
+  hideMsg('err'); hideMsg('warn');
+
+  if (namesList.length === 0) {
+    showMsg('err', '⚠️ Please enter at least some student names.');
+    return;
+  }
+  if (namesList.length < total) {
+    showMsg('err', `You have ${namesList.length} students but need ${total}. Please add ${total - namesList.length} more name(s), or reduce table sizes.`);
+    return;
+  }
+  if (namesList.length > total) {
+    showMsg('warn', `You have ${namesList.length - total} extra student(s) — they won't be assigned. Increase table sizes or add more tables.`);
+  }
+
+  // Shuffle names
+  const shuffled = [...namesList].sort(() => Math.random() - 0.5);
+
+  // Assign to tables
+  currentTables = [];
+  let idx = 0;
+  for (let i = 0; i < numTables; i++) {
+    const sz = tableSizes[i] || 3;
+    currentTables.push(shuffled.slice(idx, idx + sz));
+    idx += sz;
+  }
+
+  drawLayout();
+  renderAssignmentList();
+
+  document.getElementById('empty-state').style.display = 'none';
+  document.getElementById('classroom-canvas').style.display = 'block';
+  document.getElementById('assignment-list').classList.add('show');
+  document.getElementById('shuffle-btn').style.display = 'flex';
+  document.getElementById('ct-badge').style.display = '';
+  document.getElementById('ct-title').textContent = document.getElementById('room-label').value || 'Classroom Layout';
+}
+
+function shuffle() {
+  if (currentTables.length === 0) return;
+  const all = currentTables.flat().sort(() => Math.random() - 0.5);
+  let idx = 0;
+  for (let i = 0; i < currentTables.length; i++) {
+    const sz = currentTables[i].length;
+    currentTables[i] = all.slice(idx, idx + sz);
+    idx += sz;
+  }
+  drawLayout();
+  renderAssignmentList();
+}
+
+// ── Drawing ────────────────────────────────────────────────────
+function drawLayout() {
+  const CV_W = 1000, CV_H = 750;
+  const cv = document.getElementById('classroom-canvas');
+  cv.width = CV_W; cv.height = CV_H;
+  const ctx = cv.getContext('2d');
+
+  const showNumbers = document.getElementById('show-numbers').checked;
+  const initialsOnly = document.getElementById('show-initials').checked;
+
+  // Background
+  ctx.fillStyle = '#fafbfc';
+  ctx.fillRect(0, 0, CV_W, CV_H);
+
+  // Room border
+  ctx.strokeStyle = '#dde8f0';
+  ctx.lineWidth = 2;
+  roundRect(ctx, 20, 20, CV_W - 40, CV_H - 40, 16);
+  ctx.stroke();
+
+  // Subtle grid
+  ctx.strokeStyle = 'rgba(0,0,0,.04)';
+  ctx.lineWidth = 1;
+  for (let x = 60; x < CV_W - 40; x += 60) { ctx.beginPath(); ctx.moveTo(x, 20); ctx.lineTo(x, CV_H - 20); ctx.stroke(); }
+  for (let y = 60; y < CV_H - 40; y += 60) { ctx.beginPath(); ctx.moveTo(20, y); ctx.lineTo(CV_W - 20, y); ctx.stroke(); }
+
+  // Whiteboard
+  ctx.fillStyle = '#1a2e4a';
+  roundRect(ctx, 120, 32, CV_W - 240, 36, 6);
+  ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 13px Nunito, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('WHITEBOARD', CV_W / 2, 56);
+
+  // Teacher desk
+  const td = { x: CV_W - 110, y: 100, w: 90, h: 50 };
+  ctx.fillStyle = '#fff3cd';
+  ctx.strokeStyle = '#f39c12';
+  ctx.lineWidth = 2;
+  roundRect(ctx, td.x, td.y, td.w, td.h, 8);
+  ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#e67e22';
+  ctx.font = 'bold 10px Nunito, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText("Teacher's", td.x + td.w / 2, td.y + 20);
+  ctx.fillText("Desk", td.x + td.w / 2, td.y + 35);
+
+  // Room label
+  ctx.fillStyle = '#a0b4c8';
+  ctx.font = '11px Nunito, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText(document.getElementById('room-label').value || '', 36, CV_H - 36);
+
+  // Generate table positions based on layout
+  const positions = getPositions(numTables, layoutStyle, CV_W, CV_H);
+
+  // Draw each table
+  const TW = 110, TH = 52;
+  currentTables.forEach((students, i) => {
+    const pos = positions[i];
+    if (!pos) return;
+    const { x, y } = pos;
+    const col = TABLE_COLORS[i % TABLE_COLORS.length];
+    const alpha = tableColor !== '#3498db' ? tableColor : col;
+
+    // Table shadow
+    ctx.shadowColor = 'rgba(0,0,0,.12)';
+    ctx.shadowBlur = 14;
+    ctx.shadowOffsetY = 4;
+
+    // Table rectangle
+    ctx.fillStyle = hexToRgba(alpha, 0.18);
+    ctx.strokeStyle = alpha;
+    ctx.lineWidth = 2;
+    roundRect(ctx, x - TW / 2, y - TH / 2, TW, TH, 10);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+
+    // Table label
+    if (showNumbers) {
+      ctx.fillStyle = alpha;
+      ctx.font = 'bold 12px Nunito, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`T${i + 1}`, x, y + 5);
+    }
+
+    // Chairs / students
+    const count = students.length;
+    const chairPositions = getChairPositions(x, y, TW, TH, count);
+
+    students.forEach((name, j) => {
+      const cp = chairPositions[j];
+      if (!cp) return;
+
+      // Chair circle
+      ctx.shadowColor = 'rgba(0,0,0,.1)';
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.arc(cp.x, cp.y, 22, 0, Math.PI * 2);
+      ctx.fillStyle = alpha;
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+      ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0;
+
+      // Name
+      const display = initialsOnly ? getInitials(name) : shortenName(name, 10);
+      ctx.fillStyle = '#fff';
+      ctx.font = `bold ${display.length > 8 ? '9' : '10'}px Nunito, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.fillText(display, cp.x, cp.y + 4);
+    });
+  });
+
+  // Legend
+  drawLegend(ctx, currentTables, CV_W, CV_H, initialsOnly);
+}
+
+function getPositions(n, layout, W, H) {
+  const margin = { left: 50, right: 50, top: 100, bottom: 60 };
+  const usable = { w: W - margin.left - margin.right, h: H - margin.top - margin.bottom };
+  const positions = [];
+
+  if (layout === 'rows') {
+    const cols = Math.ceil(Math.sqrt(n * 1.4));
+    const rows = Math.ceil(n / cols);
+    const cw = usable.w / cols, rh = usable.h / rows;
+    for (let i = 0; i < n; i++) {
+      const col = i % cols, row = Math.floor(i / cols);
+      positions.push({ x: margin.left + cw * col + cw / 2, y: margin.top + rh * row + rh / 2 });
+    }
+  } else if (layout === 'pods') {
+    const podCols = Math.ceil(Math.sqrt(n));
+    const podRows = Math.ceil(n / podCols);
+    const cw = usable.w / podCols, rh = usable.h / podRows;
+    for (let i = 0; i < n; i++) {
+      const col = i % podCols, row = Math.floor(i / podCols);
+      positions.push({ x: margin.left + cw * col + cw / 2, y: margin.top + rh * row + rh / 2 });
+    }
+  } else if (layout === 'horseshoe') {
+    const perSide = Math.floor((n - 1) / 3);
+    const extra = n - 1 - perSide * 3;
+    let idx = 0;
+    // Top row
+    for (let i = 0; i < perSide + (extra > 0 ? 1 : 0); i++) {
+      positions[idx++] = { x: margin.left + (usable.w / (perSide + 1)) * (i + 1), y: margin.top + 60 };
+    }
+    // Left side
+    for (let i = 0; i < perSide; i++) {
+      positions[idx++] = { x: margin.left + 60, y: margin.top + usable.h * (i + 1) / (perSide + 1) };
+    }
+    // Right side
+    for (let i = 0; i < perSide; i++) {
+      positions[idx++] = { x: W - margin.right - 60, y: margin.top + usable.h * (i + 1) / (perSide + 1) };
+    }
+    // Bottom centre (teacher-facing)
+    if (n > 0) positions[idx++] = { x: W / 2, y: margin.top + usable.h * 0.75 };
+    // Fill any remaining
+    while (positions.length < n) positions.push({ x: W / 2, y: H / 2 });
+  }
+  return positions;
+}
+
+function getChairPositions(cx, cy, tw, th, count) {
+  const positions = [];
+  const rx = tw / 2 + 30; // horizontal orbit
+  const ry = th / 2 + 28; // vertical orbit
+
+  if (count <= 2) {
+    positions.push({ x: cx - rx, y: cy });
+    if (count === 2) positions.push({ x: cx + rx, y: cy });
+  } else if (count <= 4) {
+    const corners = [
+      { x: cx - rx * 0.7, y: cy - ry },
+      { x: cx + rx * 0.7, y: cy - ry },
+      { x: cx - rx * 0.7, y: cy + ry },
+      { x: cx + rx * 0.7, y: cy + ry },
+    ];
+    for (let i = 0; i < count; i++) positions.push(corners[i]);
+  } else if (count <= 6) {
+    for (let i = 0; i < count; i++) {
+      const angle = (Math.PI * 2 * i / count) - Math.PI / 2;
+      positions.push({ x: cx + rx * 1.0 * Math.cos(angle), y: cy + ry * 0.9 * Math.sin(angle) });
+    }
+  } else {
+    for (let i = 0; i < count; i++) {
+      const angle = (Math.PI * 2 * i / count) - Math.PI / 2;
+      positions.push({ x: cx + (rx + 10) * Math.cos(angle), y: cy + (ry + 10) * Math.sin(angle) });
+    }
+  }
+  return positions;
+}
+
+function drawLegend(ctx, tables, W, H, initialsOnly) {
+  if (tables.length === 0) return;
+  // Small legend at bottom right
+  const x = W - 20, y = H - 20;
+  ctx.textAlign = 'right';
+  ctx.font = '10px Nunito, sans-serif';
+  ctx.fillStyle = '#a0b4c8';
+  ctx.fillText(`${tables.flat().length} students · ${tables.length} tables · Generated ${new Date().toLocaleTimeString()}`, x, y);
+}
+
+function renderAssignmentList() {
+  const grid = document.getElementById('al-grid');
+  grid.innerHTML = currentTables.map((students, i) => {
+    const col = TABLE_COLORS[i % TABLE_COLORS.length];
+    return `<div class="al-card">
+      <div class="al-table-name" style="color:${col}">Table ${i + 1}</div>
+      <div class="al-students">${students.map(s =>
+        `<div class="al-student"><div class="al-dot" style="background:${col}"></div>${s}</div>`
+      ).join('')}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Utilities ──────────────────────────────────────────────────
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function hexToRgba(hex, alpha) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+function getInitials(name) {
+  return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 3);
+}
+
+function shortenName(name, max) {
+  const parts = name.trim().split(' ');
+  if (parts.length > 1) {
+    const first = parts[0];
+    const last = parts[parts.length - 1][0] + '.';
+    const full = first + ' ' + last;
+    return full.length <= max ? full : first.slice(0, max - 1) + '.';
+  }
+  return name.length <= max ? name : name.slice(0, max - 1) + '.';
+}
+
+function downloadPNG() {
+  const cv = document.getElementById('classroom-canvas');
+  if (cv.style.display === 'none') { alert('Generate a layout first!'); return; }
+  const link = document.createElement('a');
+  link.download = `classroom-layout-${Date.now()}.png`;
+  link.href = cv.toDataURL('image/png');
+  link.click();
+}
+
+function showMsg(type, msg) {
+  const el = document.getElementById(`msg-${type}`);
+  el.textContent = msg; el.classList.add('show');
+}
+function hideMsg(type) {
+  const el = document.getElementById(`msg-${type}`);
+  if (el) el.classList.remove('show');
+}
+</script>
+</body>
+</html>
