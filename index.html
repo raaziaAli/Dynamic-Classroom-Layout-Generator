@@ -220,6 +220,186 @@ input[type=range]{width:100%;accent-color:var(--teal);cursor:pointer;margin:4px 
   .canvas-area{min-height:500px}
 }
 </style>
+  <style>
+  /* =====================================================
+     Mrs. Ali's Classroom — Universal Mobile Fixes
+     ===================================================== */
+
+  /* Prevent horizontal page scrolling at all costs */
+  html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* Make ALL images, SVGs, canvases, iframes fit their container */
+  img, svg, canvas, video, iframe {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Canvases inside interactive tools sometimes have fixed pixel width.
+     Force them to respond to their parent. */
+  canvas {
+    max-width: 100% !important;
+    height: auto;
+  }
+
+  /* Wrap any <table> in an auto-scroll container.
+     The table itself scrolls inside that box, not the whole page.
+     This fixes "table overlaps other content when scrolling". */
+  @media (max-width: 768px) {
+    table {
+      display: block;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      white-space: nowrap;
+      max-width: 100%;
+    }
+    table thead, table tbody, table tr {
+      display: table;
+      width: 100%;
+      table-layout: fixed;
+    }
+    /* Let inputs inside tables breathe a little */
+    table input[type="text"],
+    table input[type="number"] {
+      width: 100% !important;
+      min-width: 60px;
+      box-sizing: border-box;
+    }
+  }
+
+  /* Enlarge tap targets on phones */
+  @media (max-width: 768px) {
+    button,
+    input[type="button"],
+    input[type="submit"],
+    input[type="reset"],
+    .btn, .hbtn, .pw-btn, .go-btn {
+      min-height: 44px;
+      padding: 10px 16px !important;
+      font-size: 15px !important;
+    }
+
+    /* Text inputs should be big enough to tap */
+    input[type="text"],
+    input[type="number"],
+    input[type="email"],
+    input[type="password"],
+    select,
+    textarea {
+      min-height: 40px;
+      font-size: 16px !important; /* prevents iOS from zooming on focus */
+      padding: 8px 10px;
+    }
+  }
+
+  /* Sliders: make them fill available width */
+  @media (max-width: 768px) {
+    input[type="range"] {
+      width: 100% !important;
+      max-width: 100%;
+      min-height: 44px; /* bigger thumb area to tap */
+    }
+  }
+
+  /* When there are multiple buttons in a row, stack them on narrow screens */
+  @media (max-width: 520px) {
+    .actions,
+    .controls,
+    .button-row,
+    .btn-row,
+    .hero-cta {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .actions button,
+    .controls button,
+    .button-row button,
+    .btn-row button,
+    .hero-cta a,
+    .hero-cta button {
+      width: 100%;
+      margin-left: 0 !important;
+    }
+  }
+
+  /* Prevent oversized fixed-width sections from overflowing */
+  @media (max-width: 768px) {
+    .wrap,
+    .container,
+    .content-wrap,
+    main,
+    section {
+      max-width: 100%;
+      padding-left: 14px;
+      padding-right: 14px;
+      box-sizing: border-box;
+    }
+    /* Don't double-pad nested elements */
+    main .wrap, section .container {
+      padding-left: 0;
+      padding-right: 0;
+    }
+  }
+
+  /* Make large headings scale down on small screens */
+  @media (max-width: 520px) {
+    h1 { font-size: 1.5rem !important; line-height: 1.15; }
+    h2 { font-size: 1.25rem !important; line-height: 1.2; }
+    h3 { font-size: 1.1rem !important; }
+    header h1 { font-size: 1.2rem !important; }
+  }
+
+  /* Grid layouts: collapse multi-column grids to single column */
+  @media (max-width: 768px) {
+    .row,
+    .grid,
+    .two-col,
+    .three-col,
+    .top-layout,
+    .charts-row,
+    .games-grid,
+    .paths-grid,
+    .tools-grid,
+    .trust-grid,
+    .try-grid,
+    .audience-tabs {
+      grid-template-columns: 1fr !important;
+      display: grid;
+      gap: 14px;
+    }
+  }
+
+  /* Fix common "card" patterns that have fixed widths */
+  @media (max-width: 768px) {
+    .card,
+    .kpi,
+    .chart-card,
+    .tool-card,
+    .game-card,
+    .try-card {
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+  }
+
+  /* Better scroll behavior on touch */
+  @media (max-width: 768px) {
+    body {
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+
+  /* Any element that explicitly sets a fixed width beyond the screen —
+     gently cap it */
+  @media (max-width: 500px) {
+    [style*="width:"],
+    [style*="width ="] {
+      max-width: 100%;
+    }
+  }
+</style>
 </head>
 <body>
 <nav class="mac-topnav" role="navigation" aria-label="Main navigation">
